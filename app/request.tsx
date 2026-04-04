@@ -45,6 +45,16 @@ export default function RequestScreen() {
     if (!answers.question3.trim() || isNaN(Number(answers.question3))) { return alert("Please answer all questions before submitting."); }
     console.log("Submitted answers:", answers);
     alert("Thank you for your responses!");
+      const data = {
+        healthcareProvider: answers.question1,
+        servicesNeeded: answers.question2,
+        distanceWillingToTravel: Number(answers.question3),
+    };
+
+    const json = JSON.stringify(data, null, 2);
+    console.log(json);
+
+    // send the data to the backend
   };
 
   
