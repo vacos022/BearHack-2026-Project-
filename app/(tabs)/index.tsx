@@ -30,7 +30,7 @@ export default function HomeScreen() {
           return;
         }
         const location = await Location.getCurrentPositionAsync({});
-        console.log(location); // { coords: { latitude, longitude, ... } }
+        //console.log(location); // { coords: { latitude, longitude, ... } }
         setLocation(location); // ✅ use the store action instead
       })();
     }, [setLocation]);
