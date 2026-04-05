@@ -1,250 +1,288 @@
-import React, { useState } from "react";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import React from "react";
 import {
   ScrollView,
   StyleSheet,
-  TextInput,
   TouchableOpacity,
+  View,
 } from "react-native";
 
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
-import { useThemeColor } from '@/hooks/use-theme-color';
-import { Colors } from '@/constants/theme';
+import { Colors } from "@/constants/theme";
+import { useThemeColor } from "@/hooks/use-theme-color";
 
+type Location = {
+  name: string;
+  distance: number;
+  phone: string | null;
+  hours: string[];
+  covered: boolean;
+  lat: number;
+  lng: number;
+};
 
-export default function RequestScreen() {
-  // Keep the user's answers for each question in state.
-  const [answers, setAnswers] = useState({
-    question1: "",
-    question2: "",
-    question3: "",
-  });
+export default function ResultsScreen() {
+  const { results } = useLocalSearchParams<{ results: string }>();
+  const router = useRouter();
 
-  // Track whether the dropdown for question one is open.
-  const [questionOneOpen, setQuestionOneOpen] = useState(false);
-  const [questionTwoOpen, setQuestionTwoOpen] = useState(false);
+  const accent1  = useThemeColor({}, "accent1");
+  const surface  = useThemeColor({}, "surface");
+  const text     = useThemeColor({}, "text");
+  const icon     = useThemeColor({}, "icon");
+  const background = useThemeColor({}, "background");
 
-  // The list of questions shown on the page.
-  const questions = [
-    "What is your healthcare provider?",
-    "What services do you need?",
-    "What is the distance your willing to travel (miles)?",
-  ];
+  // Parse and filter to only covered (in-network) locations
+  const allLocations: Location[] = results ? JSON.parse(results) : [];
+  const locations = allLocations.filter((loc) => loc.covered);
 
-  // Options shown in the dropdown for question one.
-  const question1Options = ["Anthem", "Kaiser Permanente", "Molina Healthcare"];
+  const isOpenNow = (hours: string[]): boolean | null => {
+    if (!hours || hours.length === 0) return null;
+    const now   = new Date();
+    const day   = now.getDay(); // 0 Sun … 6 Sat
+    const hour  = now.getHours();
+    const min   = now.getMinutes();
 
-  const question2Options = ["Hospital", "Urgent Care", "Emergency Room", "Psychiatrist", "Dentalogist"];
+    // weekday_text is Mon-Sun order from Google (index 0 = Monday)
+    const googleDay = day === 0 ? 6 : day - 1;
+    const todayText = hours[googleDay] ?? "";
 
-  // Update the answers object for a given question key.
-  const handleChange = (key: string, value: string) => {
-    setAnswers((prev) => ({ ...prev, [key]: value }));
-  };
+    if (todayText.toLowerCase().includes("open 24 hours")) return true;
+    if (todayText.toLowerCase().includes("closed")) return false;
 
-  // Submit the form and show a confirmation alert.
-  const handleSubmit = () => {
-    if (!answers.question1.trim()) { return alert("Please answer all questions before submitting."); }
-    if (!answers.question2.trim()) { return alert("Please answer all questions before submitting."); }
-    if (!answers.question3.trim() || isNaN(Number(answers.question3))) { return alert("Please answer all questions before submitting."); }
-    alert("Thank you for your responses!");
-      const data = {
-        healthcareProvider: answers.question1,
-        servicesNeeded: answers.question2,
-        distanceWillingToTravel: Number(answers.question3),
+    // try to parse "Monday: 8:00 AM – 8:00 PM"
+    const match = todayText.match(/(\d+):(\d+)\s*(AM|PM)\s*[–-]\s*(\d+):(\d+)\s*(AM|PM)/i);
+    if (!match) return null;
+
+    const to24 = (h: number, m: number, ampm: string) => {
+      let h24 = h % 12;
+      if (ampm.toUpperCase() === "PM") h24 += 12;
+      return h24 * 60 + m;
     };
 
-    const json = JSON.stringify(data, null, 2);
-    console.log(json);
+    const openMins  = to24(+match[1], +match[2], match[3]);
+    const closeMins = to24(+match[4], +match[5], match[6]);
+    const nowMins   = hour * 60 + min;
 
-    // send the data to the backend
+    return nowMins >= openMins && nowMins < closeMins;
   };
 
-  
-  // theme tokens (call hooks once)
-  const accent1 = useThemeColor({}, 'accent1');
-  const surface = useThemeColor({}, 'surface');
-  const background = useThemeColor({}, 'background');
-  const text = useThemeColor({}, 'text');
-  const icon = useThemeColor({}, 'icon');
-
   return (
-      <ThemedView style={{ flex: 1 }}>
-        <ScrollView style={[styles.container]} contentContainerStyle={{ paddingBottom: 40 }}>
-          <ThemedView style={styles.pageHeader} lightColor={Colors.light.surface} darkColor={'#5B21B6'}>
-            <ThemedText type="title" style={styles.requestTitle}>Request Help</ThemedText>
-            <ThemedText style={styles.requestSubtitle}>Answer a few questions so we can find care near you</ThemedText>
-          </ThemedView>
+    <ThemedView style={{ flex: 1 }}>
+      {/* Header */}
+      <ThemedView
+        style={styles.header}
+        lightColor={Colors.light.surface}
+        darkColor="#5B21B6"
+      >
+        <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
+          <ThemedText style={[styles.backArrow, { color: accent1 }]}>← Back</ThemedText>
+        </TouchableOpacity>
+        <ThemedText type="title" style={styles.headerTitle}>Nearby Care</ThemedText>
+        <ThemedText style={styles.headerSub}>
+          {locations.length} in-network location{locations.length !== 1 ? "s" : ""} found
+        </ThemedText>
+      </ThemedView>
 
-          {questions.map((question, index) => {
+      <ScrollView contentContainerStyle={styles.list}>
+        {locations.length === 0 ? (
+          <ThemedView style={[styles.emptyCard, { backgroundColor: surface }]}>
+            <ThemedText style={[styles.emptyText, { color: icon }]}>
+              No in-network locations found in this area.{"\n"}Try increasing your distance.
+            </ThemedText>
+          </ThemedView>
+        ) : (
+          locations.map((loc, index) => {
+            const openStatus = isOpenNow(loc.hours);
 
             return (
               <ThemedView
                 key={index}
-                style={styles.questionContainer}
+                style={styles.card}
                 lightColor={Colors.light.surface}
                 darkColor={Colors.dark.surface}
               >
-                <ThemedText type="defaultSemiBold" style={styles.question}>
-                  {question}
-                </ThemedText>
+                {/* Number + Name row */}
+                <View style={styles.nameRow}>
+                  <View style={[styles.indexBadge, { backgroundColor: accent1 }]}>
+                    <ThemedText style={[styles.indexText, { color: background }]}>
+                      {index + 1}
+                    </ThemedText>
+                  </View>
+                  <ThemedText type="defaultSemiBold" style={[styles.name, { color: text }]}>
+                    {loc.name}
+                  </ThemedText>
+                </View>
 
-                {index === 0 ? (
-                  <>
-                    <TouchableOpacity
-                      style={[styles.dropdown, { backgroundColor: surface, borderColor: icon }]}
-                      onPress={() => setQuestionOneOpen(!questionOneOpen)}
-                    >
-                      <ThemedText style={[styles.dropdownText, { color: answers.question1 ? text : icon }]}>
-                        {answers.question1 || "Select an option"}
-                      </ThemedText>
-                    </TouchableOpacity>
+                {/* Distance */}
+                <View style={styles.detailRow}>
+                  <ThemedText style={[styles.label, { color: icon }]}>Distance</ThemedText>
+                  <ThemedText style={[styles.value, { color: text }]}>
+                    {loc.distance} miles
+                  </ThemedText>
+                </View>
 
-                    {questionOneOpen && (
-                      <ThemedView style={[styles.dropdownMenu, { borderColor: icon }]} lightColor={Colors.light.surface} darkColor={Colors.dark.surface}>
-                        {question1Options.map((option) => (
-                          <TouchableOpacity
-                            key={option}
-                            style={styles.dropdownItem}
-                            onPress={() => {
-                              handleChange("question1", option);
-                              setQuestionOneOpen(false);
-                            }}
-                          >
-                            <ThemedText style={styles.dropdownItemText}>{option}</ThemedText>
-                          </TouchableOpacity>
-                        ))}
-                      </ThemedView>
+                {/* Phone */}
+                <View style={styles.detailRow}>
+                  <ThemedText style={[styles.label, { color: icon }]}>Phone</ThemedText>
+                  <ThemedText style={[styles.value, { color: text }]}>
+                    {loc.phone ?? "Unavailable"}
+                  </ThemedText>
+                </View>
+
+                {/* Hours */}
+                <View style={styles.detailRow}>
+                  <ThemedText style={[styles.label, { color: icon }]}>Hours</ThemedText>
+                  <View style={styles.hoursRight}>
+                    {openStatus !== null && (
+                      <View
+                        style={[
+                          styles.openBadge,
+                          { backgroundColor: openStatus ? "#16a34a22" : "#dc262622" },
+                        ]}
+                      >
+                        <ThemedText
+                          style={[
+                            styles.openText,
+                            { color: openStatus ? "#16a34a" : "#dc2626" },
+                          ]}
+                        >
+                          {openStatus ? "Open Now" : "Closed"}
+                        </ThemedText>
+                      </View>
                     )}
-                  </>
-                ) : index === 1 ? (
-                  <>
-                    <TouchableOpacity
-                      style={[styles.dropdown, { backgroundColor: surface, borderColor: icon }]}
-                      onPress={() => setQuestionTwoOpen(!questionTwoOpen)}
-                    >
-                      <ThemedText style={[styles.dropdownText, { color: answers.question2 ? text : icon }]}>
-                        {answers.question2 || "Select an option"}
-                      </ThemedText>
-                    </TouchableOpacity>
+                    <ThemedText style={[styles.value, { color: text }]}>
+                      {loc.hours.length > 0 ? loc.hours[0] : "Hours unavailable"}
+                    </ThemedText>
+                  </View>
+                </View>
 
-                    {questionTwoOpen && (
-                      <ThemedView style={[styles.dropdownMenu, { borderColor: icon }]} lightColor={Colors.light.surface} darkColor={Colors.dark.surface}>
-                        {question2Options.map((option) => (
-                          <TouchableOpacity
-                            key={option}
-                            style={styles.dropdownItem}
-                            onPress={() => {
-                              handleChange("question2", option);
-                              setQuestionTwoOpen(false);
-                            }}
-                          >
-                            <ThemedText style={styles.dropdownItemText}>{option}</ThemedText>
-                          </TouchableOpacity>
-                        ))}
-                      </ThemedView>
-                    )}
-                  </>
-                ) : (
-                  <TextInput
-                    style={[styles.textInput, { backgroundColor: surface, color: text, borderColor: icon }]}
-                    placeholder="Enter your answer here..."
-                    placeholderTextColor={icon}
-                    value={answers[`question${index + 1}` as keyof typeof answers]}
-                    onChangeText={(value) => handleChange(`question${index + 1}`, value)}
-                    multiline
-                  />
-                )}
+                {/* In-network badge */}
+                <View style={[styles.coveredBadge, { borderColor: accent1 + "44" }]}>
+                  <ThemedText style={[styles.coveredText, { color: accent1 }]}>
+                    ✓ In-Network
+                  </ThemedText>
+                </View>
               </ThemedView>
             );
-          })}
-
-          <TouchableOpacity style={[styles.button, { backgroundColor: accent1, shadowColor: accent1 }]} onPress={handleSubmit}>
-            <ThemedText style={[styles.buttonText, { color: background }]}>Submit</ThemedText>
-          </TouchableOpacity>
-        </ScrollView>
-      </ThemedView>
+          })
+        )}
+      </ScrollView>
+    </ThemedView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
+  header: {
     padding: 20,
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: "bold",
-    marginBottom: 20,
-    textAlign: "center",
-  },
-  questionContainer: {
-    marginBottom: 20,
-    borderRadius: 16,
-    padding: 12,
-    gap: 8,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.04,
-    shadowRadius: 8,
-    elevation: 2,
-  },
-  question: {
-    fontSize: 16,
-    fontWeight: "600",
+    paddingTop: 56,
+    borderBottomLeftRadius: 20,
+    borderBottomRightRadius: 20,
     marginBottom: 8,
   },
-  dropdown: {
-    borderWidth: 1,
-    borderRadius: 8,
-    padding: 14,
+  backBtn: {
+    marginBottom: 8,
   },
-  dropdownText: {
+  backArrow: {
     fontSize: 14,
-  },
-  dropdownMenu: {
-    marginTop: 8,
-    borderWidth: 1,
-    borderRadius: 12,
-    overflow: 'hidden',
-  },
-  dropdownItem: {
-    padding: 14,
-  },
-  dropdownItemText: {
-    fontSize: 14,
-  },
-  textInput: {
-    borderWidth: 1,
-    borderRadius: 8,
-    padding: 12,
-    fontSize: 14,
-    minHeight: 50,
-    textAlignVertical: "top",
-  },
-  pageHeader: {
-    borderRadius: 16,
-    padding: 18,
-    marginBottom: 14,
-    justifyContent: 'center',
-  },
-  requestTitle: {
-    fontSize: 20,
-    fontWeight: '700',
-  },
-  requestSubtitle: {
-    marginTop: 6,
-    fontSize: 14,
-    opacity: 0.9,
-  },
-  button: {
-    padding: 16,
-    borderRadius: 8,
-    alignItems: "center",
-    marginTop: 20,
-    marginBottom: 30,
-  },
-  buttonText: {
-    fontSize: 16,
     fontWeight: "600",
+  },
+  headerTitle: {
+    fontSize: 22,
+    fontWeight: "700",
+  },
+  headerSub: {
+    marginTop: 4,
+    fontSize: 13,
+    opacity: 0.8,
+  },
+  list: {
+    padding: 16,
+    paddingBottom: 40,
+    gap: 14,
+  },
+  card: {
+    borderRadius: 16,
+    padding: 16,
+    gap: 10,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.06,
+    shadowRadius: 10,
+    elevation: 3,
+  },
+  nameRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+    marginBottom: 4,
+  },
+  indexBadge: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  indexText: {
+    fontSize: 13,
+    fontWeight: "700",
+  },
+  name: {
+    fontSize: 15,
+    fontWeight: "600",
+    flex: 1,
+    flexWrap: "wrap",
+  },
+  detailRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "flex-start",
+  },
+  label: {
+    fontSize: 13,
+    fontWeight: "500",
+    minWidth: 70,
+  },
+  value: {
+    fontSize: 13,
+    flex: 1,
+    textAlign: "right",
+  },
+  hoursRight: {
+    flex: 1,
+    alignItems: "flex-end",
+    gap: 4,
+  },
+  openBadge: {
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 6,
+  },
+  openText: {
+    fontSize: 11,
+    fontWeight: "700",
+  },
+  coveredBadge: {
+    marginTop: 4,
+    alignSelf: "flex-start",
+    borderWidth: 1,
+    borderRadius: 8,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+  },
+  coveredText: {
+    fontSize: 12,
+    fontWeight: "600",
+  },
+  emptyCard: {
+    borderRadius: 16,
+    padding: 24,
+    alignItems: "center",
+  },
+  emptyText: {
+    fontSize: 14,
+    textAlign: "center",
+    lineHeight: 22,
   },
 });
