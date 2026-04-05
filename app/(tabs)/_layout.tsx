@@ -46,7 +46,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="chatScreen"
         options={{
-          title: "Greg AI",
+          title: "Wall-E AI",
           tabBarIcon: ({ color }) => (
             <IconSymbol size={28} name="bubble.fill" color={color} />
           ),
