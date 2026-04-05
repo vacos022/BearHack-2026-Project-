@@ -2,10 +2,40 @@ import ParallaxScrollView from "@/components/parallax-scroll-view";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 import { Image } from "expo-image";
-import { StyleSheet, TouchableOpacity } from "react-native";
+import { StyleSheet, TouchableOpacity, Alert  } from "react-native";
 import { router } from 'expo-router';
+import * as Location from "expo-location";
+import { useEffect } from "react";
+import useLocationStore from "@/store/locationStore";
+
 
 export default function HomeScreen() {
+
+  const setLocation = useLocationStore((s) => s.setLocation);
+
+    useEffect(() => {
+
+
+      (async () => {
+        const { status } = await Location.requestForegroundPermissionsAsync();
+        if (status !== "granted") {
+          Alert.alert(
+            "Location Needed",
+            "We use your location to find nearby providers. Please enable it in Settings.",
+            [
+              { text: "Cancel", style: "cancel" },
+              { text: "Open Settings", onPress: () => Location.enableNetworkProviderAsync() }
+            ]
+          );
+          return;
+        }
+        const location = await Location.getCurrentPositionAsync({});
+        console.log(location); // { coords: { latitude, longitude, ... } }
+        setLocation(location); // ✅ use the store action instead
+      })();
+    }, [setLocation]);
+
+
   return (
     <ParallaxScrollView
       headerBackgroundColor={{ light: "#FAF9F6", dark: "#000000" }}
