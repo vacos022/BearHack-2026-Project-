@@ -43,7 +43,6 @@ export default function RequestScreen() {
     if (!answers.question1.trim()) { return alert("Please answer all questions before submitting."); }
     if (!answers.question2.trim()) { return alert("Please answer all questions before submitting."); }
     if (!answers.question3.trim() || isNaN(Number(answers.question3))) { return alert("Please answer all questions before submitting."); }
-    console.log("Submitted answers:", answers);
     alert("Thank you for your responses!");
       const data = {
         healthcareProvider: answers.question1,
