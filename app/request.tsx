@@ -23,7 +23,7 @@ export default function RequestScreen() {
 
   // The list of questions shown on the page.
   const questions = [
-    "What is healthcare provider?",
+    "What is your healthcare provider?",
     "What services do you need?",
     "What is the distance your willing to travel (miles)?",
   ];

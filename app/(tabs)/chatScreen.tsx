@@ -25,7 +25,7 @@ export default function ChatScreen() {
    {     
     id: "intro",
     role: "ai",
-    text: "Hey! I'm Gregory, your personal health assistant. How can I help you today? 🩺",
+    text: "Hey! I'm Wall-E, your personal health assistant. How can I help you today? 🩺",
    }, 
   ]);
   const [input, setInput] = useState("");
@@ -107,7 +107,7 @@ export default function ChatScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f5f5f5",
+    backgroundColor: "#0d0d0d",
   },
   messageList: {
     padding: 16,
@@ -121,22 +121,22 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   userBubble: {
-    backgroundColor: "#007AFF",
+    backgroundColor: "#2563eb",
     alignSelf: "flex-end",
     borderBottomRightRadius: 4,
   },
   aiBubble: {
-    backgroundColor: "#e0e0e0",
+    backgroundColor: "#1e1e1e",
     alignSelf: "flex-start",
     borderBottomLeftRadius: 4,
   },
   bubbleText: {
     fontSize: 15,
-    color: "#fff",
+    color: "#f0f0f0",
   },
   emptyText: {
     textAlign: "center",
-    color: "#aaa",
+    color: "#555",
     marginTop: 40,
     fontSize: 14,
   },
@@ -146,9 +146,9 @@ const styles = StyleSheet.create({
   inputRow: {
     flexDirection: "row",
     padding: 12,
-    backgroundColor: "#fff",
+    backgroundColor: "#141414",
     borderTopWidth: 1,
-    borderTopColor: "#ddd",
+    borderTopColor: "#2a2a2a",
     alignItems: "flex-end",
   },
   input: {
@@ -156,23 +156,23 @@ const styles = StyleSheet.create({
     minHeight: 44,
     maxHeight: 120,
     borderWidth: 1,
-    borderColor: "#ddd",
+    borderColor: "#2a2a2a",
     borderRadius: 22,
     paddingHorizontal: 16,
     paddingVertical: 10,
     fontSize: 15,
-    backgroundColor: "#fafafa",
+    backgroundColor: "#1a1a1a",
     marginRight: 10,
-    color: "#000",
+    color: "#f0f0f0",
   },
   sendButton: {
-    backgroundColor: "#007AFF",
+    backgroundColor: "#2563eb",
     borderRadius: 22,
     paddingHorizontal: 20,
     paddingVertical: 12,
   },
   sendButtonDisabled: {
-    backgroundColor: "#b0c9f5",
+    backgroundColor: "#1a3a7a",
   },
   sendButtonText: {
     color: "#fff",
