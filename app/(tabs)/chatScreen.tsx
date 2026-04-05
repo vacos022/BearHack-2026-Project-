@@ -1,7 +1,6 @@
 import React, { useState, useRef } from "react";
 import {
   View,
-  Text,
   TextInput,
   TouchableOpacity,
   FlatList,
@@ -11,6 +10,10 @@ import {
   StyleSheet,
 } from "react-native";
 import { startChat } from "../../services/geminiService";
+import { ThemedText } from "@/components/themed-text";
+import { ThemedView } from "@/components/themed-view";
+import { useThemeColor } from '@/hooks/use-theme-color';
+import { Colors } from '@/constants/theme';
 
 type Message = {
   id: string;
@@ -21,6 +24,12 @@ type Message = {
 
 export default function ChatScreen() {
   const chatRef = useRef(startChat());
+  // theme tokens
+  const accent1 = useThemeColor({}, 'accent1');
+  const surface = useThemeColor({}, 'surface');
+  const background = useThemeColor({}, 'background');
+  const text = useThemeColor({}, 'text');
+  const icon = useThemeColor({}, 'icon');
   const [messages, setMessages] = useState<Message[]>([
    {     
     id: "intro",
@@ -52,55 +61,59 @@ export default function ChatScreen() {
   };
 
   return (
-    <KeyboardAvoidingView
-      style={styles.container}
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
-    >
-      {/* Message List */}
-      <FlatList
-        ref={flatListRef}
-        data={messages}
-        keyExtractor={(item) => item.id}
-        //onContentSizeChange={() => flatListRef.current?.scrollToEnd({ animated: true })}
-        contentContainerStyle={styles.messageList}
-        renderItem={({ item }) => (
-          <View
-            style={[
-              styles.bubble,
-              item.role === "user" ? styles.userBubble : styles.aiBubble,
-            ]}
-          >
-            <Text style={styles.bubbleText}>{item.text}</Text>
-          </View>
-        )}
-        ListEmptyComponent={
-          <Text style={styles.emptyText}>Start a conversation with Gemini!</Text>
-        }
-      />
-
-      {/* Typing indicator */}
-      {loading && <ActivityIndicator style={styles.loader} />}
-
-      {/* Input Row */}
-      <View style={styles.inputRow}>
-        <TextInput
-          style={styles.input}
-          value={input}
-          onChangeText={setInput}
-          placeholder="Type a message..."
-          placeholderTextColor="#999"
-          multiline
-          onSubmitEditing={sendMessage}
+    <ThemedView style={{ flex: 1 }}>
+      <KeyboardAvoidingView
+        style={[styles.container, { flex: 1 }]}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+      >
+        {/* Message List */}
+        <FlatList
+          ref={flatListRef}
+          data={messages}
+          keyExtractor={(item) => item.id}
+          //onContentSizeChange={() => flatListRef.current?.scrollToEnd({ animated: true })}
+          contentContainerStyle={styles.messageList}
+          renderItem={({ item }) => (
+            <View
+              style={[
+                styles.bubble,
+                item.role === "user"
+                  ? [styles.userBubble, { backgroundColor: accent1 }]
+                  : [styles.aiBubble, { backgroundColor: surface }],
+              ]}
+            >
+              <ThemedText style={[styles.bubbleText, item.role === 'user' && { color: background }]}>{item.text}</ThemedText>
+            </View>
+          )}
+          ListEmptyComponent={
+            <ThemedText style={styles.emptyText}>Start a conversation with Wall‑E!</ThemedText>
+          }
         />
-        <TouchableOpacity
-          style={[styles.sendButton, (!input.trim() || loading) && styles.sendButtonDisabled]}
-          onPress={sendMessage}
-          disabled={!input.trim() || loading}
-        >
-          <Text style={styles.sendButtonText}>Send</Text>
-        </TouchableOpacity>
-      </View>
-    </KeyboardAvoidingView>
+
+        {/* Typing indicator */}
+        {loading && <ActivityIndicator style={styles.loader} color={accent1} />}
+
+        {/* Input Row */}
+        <View style={[styles.inputRow, { backgroundColor: surface, borderTopColor: icon }]}> 
+          <TextInput
+            style={[styles.input, { backgroundColor: surface, borderColor: icon, color: text }]}
+            value={input}
+            onChangeText={setInput}
+            placeholder="Type a message..."
+            placeholderTextColor={icon}
+            multiline
+            onSubmitEditing={sendMessage}
+          />
+          <TouchableOpacity
+            style={[styles.sendButton, (!input.trim() || loading) && styles.sendButtonDisabled, { backgroundColor: accent1 }]}
+            onPress={sendMessage}
+            disabled={!input.trim() || loading}
+          >
+            <ThemedText style={[styles.sendButtonText, { color: background }]}>Send</ThemedText>
+          </TouchableOpacity>
+        </View>
+      </KeyboardAvoidingView>
+    </ThemedView>
   );
 }
 

@@ -119,7 +119,7 @@ export default function HomeScreen() {
             Need help understanding general information about your plan or need health advice? Our AI assistant can answer questions about your health and coverage concerns. Get started below!
           </ThemedText>
           <TouchableOpacity
-            onPress={() => Alert.alert('AI Assistant', 'Start a chat with the AI chatbot (feature coming soon).')}
+            onPress={() => router.push({ pathname: '/chatScreen' })}
             style={[styles.primaryButton, { backgroundColor: accent1, shadowColor: accent1 }]}
           >
             <ThemedText style={[styles.buttonText, { color: background }]}>Start Chat</ThemedText>
