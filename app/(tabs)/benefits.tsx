@@ -1,12 +1,13 @@
 import ParallaxScrollView from "@/components/parallax-scroll-view";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
+
 import { router } from "expo-router";
 import { StyleSheet, TouchableOpacity } from "react-native";
 
 export default function BenefitsScreen() {
   return (
-    <ParallaxScrollView
+      <ParallaxScrollView
       headerBackgroundColor={{ light: "#FAF9F6", dark: "#000000" }}
       headerImage={
         <ThemedView
@@ -44,7 +45,7 @@ export default function BenefitsScreen() {
 
       <ThemedView style={styles.section}>
         <ThemedText type="subtitle">Coverage Overview</ThemedText>
-        <ThemedView style={styles.benefitCard}>
+        <ThemedView style={styles.benefitCard} lightColor="#FAF9F6" darkColor="#0b1220">
           <ThemedText style={styles.benefitTitle}>Hospital Services</ThemedText>
           <ThemedText style={styles.benefitText}>
             Primary care visits, specialist consultations, and normal checkups
@@ -52,7 +53,7 @@ export default function BenefitsScreen() {
           </ThemedText>
         </ThemedView>
 
-        <ThemedView style={styles.benefitCard}>
+        <ThemedView style={styles.benefitCard} lightColor="#FAF9F6" darkColor="#0b1220">
           <ThemedText style={styles.benefitTitle}>Urgent Care</ThemedText>
           <ThemedText style={styles.benefitText}>
             Access to urgent care centers for non-emergency medical needs, with
@@ -60,7 +61,7 @@ export default function BenefitsScreen() {
           </ThemedText>
         </ThemedView>
 
-        <ThemedView style={styles.benefitCard}>
+        <ThemedView style={styles.benefitCard} lightColor="#FAF9F6" darkColor="#0b1220">
           <ThemedText style={styles.benefitTitle}>Emergency Room</ThemedText>
           <ThemedText style={styles.benefitText}>
             Comprehensive information for emergency room visits, including
@@ -68,7 +69,7 @@ export default function BenefitsScreen() {
           </ThemedText>
         </ThemedView>
 
-        <ThemedView style={styles.benefitCard}>
+        <ThemedView style={styles.benefitCard} lightColor="#FAF9F6" darkColor="#0b1220">
           <ThemedText style={styles.benefitTitle}>
             Psychiatrist Services
           </ThemedText>
@@ -78,7 +79,7 @@ export default function BenefitsScreen() {
           </ThemedText>
         </ThemedView>
 
-        <ThemedView style={styles.benefitCard}>
+        <ThemedView style={styles.benefitCard} lightColor="#FAF9F6" darkColor="#0b1220">
           <ThemedText style={styles.benefitTitle}>Dentist Services</ThemedText>
           <ThemedText style={styles.benefitText}>
             Information about dental checkups, cleanings, and basic procedures.
@@ -112,23 +113,23 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     padding: 18,
     gap: 8,
-    backgroundColor: "#FAF9F6",
+    
   },
   benefitTitle: {
     fontSize: 18,
     fontWeight: "600",
-    color: "#111111",
+    color: "#ffffff",
   },
   benefitText: {
     fontSize: 14,
     lineHeight: 20,
-    color: "#1d2027",
+    color: "#dde5f6",
   },
   detailCard: {
     borderRadius: 16,
     padding: 18,
     gap: 6,
-    backgroundColor: "#FAF9F6",
+    
   },
   detailTitle: {
     fontSize: 16,
@@ -137,14 +138,14 @@ const styles = StyleSheet.create({
   },
   detailText: {
     fontSize: 14,
-    color: "#1D4ED8",
+    color: "#1346d1",
     fontWeight: "500",
   },
   networkCard: {
     borderRadius: 16,
     padding: 18,
     gap: 8,
-    backgroundColor: "#FAF9F6",
+    
   },
   networkCardBlue: {
     borderRadius: 16,

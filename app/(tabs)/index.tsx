@@ -3,6 +3,8 @@ import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 import { Image } from "expo-image";
 import { StyleSheet, TouchableOpacity, Alert  } from "react-native";
+import { useThemeColor } from '@/hooks/use-theme-color';
+import { Colors } from '@/constants/theme';
 import { router } from 'expo-router';
 import * as Location from "expo-location";
 import { useEffect } from "react";
@@ -12,6 +14,13 @@ import useLocationStore from "@/store/locationStore";
 export default function HomeScreen() {
 
   const setLocation = useLocationStore((s) => s.setLocation);
+
+  const accent1 = useThemeColor({}, 'accent1');
+  const accent2 = useThemeColor({}, 'accent2');
+  const surface = useThemeColor({}, 'surface');
+  const background = useThemeColor({}, 'background');
+  const glow = useThemeColor({}, 'glow');
+  const textColor = useThemeColor({}, 'text');
 
     useEffect(() => {
 
@@ -37,19 +46,19 @@ export default function HomeScreen() {
 
 
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: "#FAF9F6", dark: "#000000" }}
+      <ParallaxScrollView
+        headerBackgroundColor={{ light: Colors.light.surface, dark: Colors.dark.surface }}
       headerImage={
         <ThemedView
           style={styles.headerGraphic}
-          lightColor="#FAF9F6"
-          darkColor="#994700"
+          lightColor={Colors.light.surface}
+          darkColor={'#6D28D9'}
         >
           <ThemedText type="title" style={styles.headerTitle}>
             Thrive
           </ThemedText>
           <ThemedText type="subtitle" style={styles.headerSubtitle}>
-            Your care is our Priority
+            Your care is our Priority!
           </ThemedText>
           <Image
             source={require("@/assets/images/boot.png")}
@@ -59,37 +68,22 @@ export default function HomeScreen() {
         </ThemedView>
       }
     >
-      <ThemedView style={styles.heroCard}>
-        <ThemedText type="title" style={styles.heroTitle}>
-          Welcome to your care hub
-        </ThemedText>
-        <ThemedText style={styles.heroText}>
-          A clean place to review hospital coverage summaries, plan highlights,
-          and support resources. Your benefits are organized for easy access.
-        </ThemedText>
-      </ThemedView>
-
       <ThemedView style={styles.section}>
-        <ThemedText type="subtitle" style={styles.sectionTitle}>
-          Coverage Snapshot
+        <ThemedText type="title" style={styles.sectionTitle}>
+          Welcome to your Care Hub!
         </ThemedText>
 
         <ThemedView style={styles.infoGrid}>
-          <ThemedView style={styles.infoCard}>
-            <ThemedText style={styles.cardTitle}>Inpatient Care</ThemedText>
+          <ThemedView style={styles.infoCard} lightColor={Colors.light.surface} darkColor={Colors.dark.surface}>
+            <ThemedText style={styles.cardTitle}>Find the coverage that fits you!</ThemedText>
             <ThemedText style={styles.cardText}>
-              Hospital stays, surgery coverage, and specialist consultations
-              with trusted providers.
+              Looking for in-network hospitals and specialists? Tap the button below to start finding nearby locations that accept your insurance.
             </ThemedText>
             <TouchableOpacity
-              onPress={() => router.push({
-                pathname: '/request',
-              })}
-              style={styles.secondaryButton}
+              onPress={() => router.push({ pathname: '/request' })}
+              style={[styles.primaryButton, { backgroundColor: accent2, shadowColor: accent2 }]}
             >
-              <ThemedText style={styles.secondaryButtonText}>
-                Request Help Now
-              </ThemedText>
+              <ThemedText style={[styles.buttonText, { color: background }]}>Find Providers</ThemedText>
             </TouchableOpacity>
           </ThemedView>
         </ThemedView>
@@ -97,42 +91,38 @@ export default function HomeScreen() {
 
       <ThemedView style={styles.section}>
         <ThemedText type="subtitle" style={styles.sectionTitle}>
-          Plan Highlights
+          What do we provide?
         </ThemedText>
 
-        <ThemedView style={styles.detailCard}>
-          <ThemedText style={styles.cardTitle}>
-            Preventive Care Included
-          </ThemedText>
+        <ThemedView style={styles.detailCard} lightColor={Colors.light.surface} darkColor={Colors.dark.surface}>
+          <ThemedText style={styles.cardTitle}>AI Chatbot</ThemedText>
           <ThemedText style={styles.cardText}>
-            Annual checkups, screenings, and wellness visits to keep your whole
-            family healthy.
+            Ask questions about coverage, benefits, and next steps — our AI assistant helps you understand your plan and quickly find the right care.
           </ThemedText>
         </ThemedView>
 
-        <ThemedView style={styles.detailCard}>
-          <ThemedText style={styles.cardTitle}>Pharmacy Savings</ThemedText>
+        <ThemedView style={styles.detailCard} lightColor={Colors.light.surface} darkColor={Colors.dark.surface}>
+          <ThemedText style={styles.cardTitle}>Insurance-aware Search</ThemedText>
           <ThemedText style={styles.cardText}>
-            Lower-cost prescriptions and support navigating formulary options.
+            We combine your location and insurance details to surface nearby hospitals and providers that accept your plan, so you get care that fits.
           </ThemedText>
         </ThemedView>
       </ThemedView>
 
       <ThemedView style={styles.section}>
         <ThemedText type="subtitle" style={styles.sectionTitle}>
-          Need Assistance?
+          Need assistance?
         </ThemedText>
-
-        <ThemedView style={styles.actionCard}>
-          <ThemedText style={styles.actionTitle}>
-            Contact your care team
-          </ThemedText>
+        <ThemedView style={styles.actionCard} lightColor={Colors.light.surface} darkColor={Colors.dark.surface}>
+          <ThemedText style={[styles.actionTitle, { color: accent2 }]}>AI Chatbot</ThemedText>
           <ThemedText style={styles.actionText}>
-            Call 1-800-CARE-123 or visit your network portal to check benefits,
-            book appointments, and review hospital details.
+            Need help understanding general information about your plan or need health advice? Our AI assistant can answer questions about your health and coverage concerns. Get started below!
           </ThemedText>
-          <TouchableOpacity style={styles.primaryButton}>
-            <ThemedText style={styles.buttonText}>Get Started</ThemedText>
+          <TouchableOpacity
+            onPress={() => Alert.alert('AI Assistant', 'Start a chat with the AI chatbot (feature coming soon).')}
+            style={[styles.primaryButton, { backgroundColor: accent1, shadowColor: accent1 }]}
+          >
+            <ThemedText style={[styles.buttonText, { color: background }]}>Start Chat</ThemedText>
           </TouchableOpacity>
         </ThemedView>
       </ThemedView>
@@ -153,36 +143,50 @@ const styles = StyleSheet.create({
     padding: 32,
   },
   headerTitle: {
-    color: "#FAF9F6",
     fontWeight: "700",
   },
   headerSubtitle: {
     marginTop: 6,
-    color: "#d8d8d8",
   },
 
   heroCard: {
     borderRadius: 20,
     padding: 20,
     gap: 10,
-    backgroundColor: "#FAF9F6",
-
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.05,
     shadowRadius: 10,
     elevation: 2,
   },
+  infoCard: {
+    borderRadius: 20,
+    padding: 16,
+    gap: 10,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.05,
+    shadowRadius: 10,
+    elevation: 2,
+  },
+  detailCard: {
+    borderRadius: 20,
+    padding: 16,
+    gap: 10,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.04,
+    shadowRadius: 8,
+    elevation: 2,
+  },
   heroTitle: {
     fontSize: 22,
     lineHeight: 30,
-    color: "#111111",
     fontWeight: "600",
   },
   heroText: {
     fontSize: 15,
     lineHeight: 22,
-    color: "#6B7280",
   },
 
   section: {
@@ -191,67 +195,52 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   sectionTitle: {
-    color: "#FAF9F6",
     fontWeight: "600",
   },
 
   infoGrid: {
-    flexDirection: "row",
-    gap: 12,
-  },
+    borderRadius: 20,
+    padding: 20,
+    gap: 10,
 
-  infoCard: {
-    flex: 1,
-    borderRadius: 16,
-    padding: 16,
-    gap: 6,
-    backgroundColor: "#FAF9F6",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.05,
+    shadowRadius: 10,
+    elevation: 2,
   },
-
-  detailCard: {
-    borderRadius: 16,
-    padding: 16,
-    gap: 6,
-    backgroundColor: "#FAF9F6",
-  },
-
+  
   cardTitle: {
     fontSize: 16,
-    color: "#111111",
     fontWeight: "600",
   },
   cardText: {
     fontSize: 14,
     lineHeight: 20,
-    color: "#6B7280",
   },
 
   actionCard: {
-    borderRadius: 16,
+    borderRadius: 20,
     padding: 16,
     gap: 8,
-    backgroundColor: "#FAF9F6",
+    
   },
   actionTitle: {
     fontSize: 16,
-    color: "#1D4ED8",
     fontWeight: "600",
   },
   actionText: {
     fontSize: 14,
     lineHeight: 20,
-    color: "#374151",
   },
 
   // Button Styles
   primaryButton: {
-    backgroundColor: "#1D4ED8",
     borderRadius: 16,
     paddingVertical: 14,
     paddingHorizontal: 24,
     alignItems: "center",
     justifyContent: "center",
-    shadowColor: "#1D4ED8",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.2,
     shadowRadius: 8,
@@ -265,16 +254,13 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     borderWidth: 2,
-    borderColor: "#1D4ED8",
   },
   buttonText: {
     fontSize: 16,
     fontWeight: "600",
-    color: "#FFFFFF",
   },
   secondaryButtonText: {
     fontSize: 16,
     fontWeight: "600",
-    color: "#1D4ED8",
   },
 });

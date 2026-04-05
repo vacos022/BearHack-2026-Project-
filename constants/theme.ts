@@ -6,21 +6,32 @@
 import { Platform } from 'react-native';
 
 const tintColorLight = '#0a7ea4';
-const tintColorDark = '#fff';
+const tintColorDark = '#9EE7FF';
 
+// Spacey dark palette: deep navy background, purple accents, neon cyan highlights
 export const Colors = {
   light: {
     text: '#11181C',
-    background: '#fff',
+    background: '#FFFFFF',
+    surface: '#FAF9F6',
     tint: tintColorLight,
+    accent1: '#0a7ea4',
+    accent2: '#8B5CF6',
+    glow: '#A78BFA',
+    star: '#FFD166',
     icon: '#687076',
     tabIconDefault: '#687076',
     tabIconSelected: tintColorLight,
   },
   dark: {
-    text: '#ECEDEE',
-    background: '#151718',
+    text: '#E6F0FF',
+    background: '#070812',
+    surface: '#0b1220',
     tint: tintColorDark,
+    accent1: '#6EE7F0',
+    accent2: '#8B5CF6',
+    glow: '#5EEAD4',
+    star: '#FFD166',
     icon: '#9BA1A6',
     tabIconDefault: '#9BA1A6',
     tabIconSelected: tintColorDark,
