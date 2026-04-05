@@ -1,12 +1,15 @@
 import React, { useState } from "react";
 import {
-    ScrollView,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  ScrollView,
+  StyleSheet,
+  TextInput,
+  TouchableOpacity,
 } from "react-native";
+
+import { ThemedText } from "@/components/themed-text";
+import { ThemedView } from "@/components/themed-view";
+import { useThemeColor } from '@/hooks/use-theme-color';
+import { Colors } from '@/constants/theme';
 
 
 export default function RequestScreen() {
@@ -58,99 +61,109 @@ export default function RequestScreen() {
   };
 
   
+  // theme tokens (call hooks once)
+  const accent1 = useThemeColor({}, 'accent1');
+  const surface = useThemeColor({}, 'surface');
+  const background = useThemeColor({}, 'background');
+  const text = useThemeColor({}, 'text');
+  const icon = useThemeColor({}, 'icon');
 
   return (
-    <ScrollView style={styles.container}>
-      <Text style={styles.title}>Please Answer These Questions</Text>
+      <ThemedView style={{ flex: 1 }}>
+        <ScrollView style={[styles.container]} contentContainerStyle={{ paddingBottom: 40 }}>
+          <ThemedView style={styles.pageHeader} lightColor={Colors.light.surface} darkColor={'#5B21B6'}>
+            <ThemedText type="title" style={styles.requestTitle}>Request Help</ThemedText>
+            <ThemedText style={styles.requestSubtitle}>Answer a few questions so we can find care near you</ThemedText>
+          </ThemedView>
 
-      {questions.map((question, index) => (
-        <View key={index} style={styles.questionContainer}>
-          <Text style={styles.question}>{question}</Text>
+          {questions.map((question, index) => {
 
-          {index === 0 ? (
-            // For the first question, render a dropdown selector.
-            <>
-              <TouchableOpacity
-                style={styles.dropdown}
-                onPress={() => setQuestionOneOpen(!questionOneOpen)}
+            return (
+              <ThemedView
+                key={index}
+                style={styles.questionContainer}
+                lightColor={Colors.light.surface}
+                darkColor={Colors.dark.surface}
               >
-                <Text style={styles.dropdownText}>
-                  {answers.question1 || "Select an option"}
-                </Text>
-              </TouchableOpacity>
+                <ThemedText type="defaultSemiBold" style={styles.question}>
+                  {question}
+                </ThemedText>
 
-              {questionOneOpen && (
-                // Show the dropdown menu only when open.
-                <View style={styles.dropdownMenu}>
-                  {question1Options.map((option) => (
+                {index === 0 ? (
+                  <>
                     <TouchableOpacity
-                      key={option}
-                      style={styles.dropdownItem}
-                      onPress={() => {
-                        handleChange("question1", option);
-                        setQuestionOneOpen(false);
-                      }}
+                      style={[styles.dropdown, { backgroundColor: surface, borderColor: icon }]}
+                      onPress={() => setQuestionOneOpen(!questionOneOpen)}
                     >
-                      <Text style={styles.dropdownItemText}>{option}</Text>
+                      <ThemedText style={[styles.dropdownText, { color: answers.question1 ? text : icon }]}>
+                        {answers.question1 || "Select an option"}
+                      </ThemedText>
                     </TouchableOpacity>
-                  ))}
-                </View>
-              )}
-            </>
-          ) : 
-            index === 1 ? (
-            // For the second question, render a dropdown selector.
-            <>
-              <TouchableOpacity
-                style={styles.dropdown}
-                onPress={() => setQuestionTwoOpen(!questionTwoOpen)}
-              >
-                <Text style={styles.dropdownText}>
-                  {answers.question2 || "Select an option"}
-                </Text>
-              </TouchableOpacity>
 
-              {questionTwoOpen && (
-                // Show the dropdown menu only when open.
-                <View style={styles.dropdownMenu}>
-                  {question2Options.map((option) => (
+                    {questionOneOpen && (
+                      <ThemedView style={[styles.dropdownMenu, { borderColor: icon }]} lightColor={Colors.light.surface} darkColor={Colors.dark.surface}>
+                        {question1Options.map((option) => (
+                          <TouchableOpacity
+                            key={option}
+                            style={styles.dropdownItem}
+                            onPress={() => {
+                              handleChange("question1", option);
+                              setQuestionOneOpen(false);
+                            }}
+                          >
+                            <ThemedText style={styles.dropdownItemText}>{option}</ThemedText>
+                          </TouchableOpacity>
+                        ))}
+                      </ThemedView>
+                    )}
+                  </>
+                ) : index === 1 ? (
+                  <>
                     <TouchableOpacity
-                      key={option}
-                      style={styles.dropdownItem}
-                      onPress={() => {
-                        handleChange("question2", option);
-                        setQuestionTwoOpen(false);
-                      }}
+                      style={[styles.dropdown, { backgroundColor: surface, borderColor: icon }]}
+                      onPress={() => setQuestionTwoOpen(!questionTwoOpen)}
                     >
-                      <Text style={styles.dropdownItemText}>{option}</Text>
+                      <ThemedText style={[styles.dropdownText, { color: answers.question2 ? text : icon }]}>
+                        {answers.question2 || "Select an option"}
+                      </ThemedText>
                     </TouchableOpacity>
-                  ))}
-                </View>
-              )}
-            </>
-          )
-          
-          
-          : (
-            // For other questions, render a normal text input.
-            <TextInput
-              style={styles.textInput}
-              placeholder="Enter your answer here..."
-              placeholderTextColor="#999"
-              value={answers[`question${index + 1}` as keyof typeof answers]}
-              onChangeText={(value) =>
-                handleChange(`question${index + 1}`, value)
-              }
-              multiline
-            />
-          )}
-        </View>
-      ))}
 
-      <TouchableOpacity style={styles.button} onPress={handleSubmit}>
-        <Text style={styles.buttonText}>Submit</Text>
-      </TouchableOpacity>
-    </ScrollView>
+                    {questionTwoOpen && (
+                      <ThemedView style={[styles.dropdownMenu, { borderColor: icon }]} lightColor={Colors.light.surface} darkColor={Colors.dark.surface}>
+                        {question2Options.map((option) => (
+                          <TouchableOpacity
+                            key={option}
+                            style={styles.dropdownItem}
+                            onPress={() => {
+                              handleChange("question2", option);
+                              setQuestionTwoOpen(false);
+                            }}
+                          >
+                            <ThemedText style={styles.dropdownItemText}>{option}</ThemedText>
+                          </TouchableOpacity>
+                        ))}
+                      </ThemedView>
+                    )}
+                  </>
+                ) : (
+                  <TextInput
+                    style={[styles.textInput, { backgroundColor: surface, color: text, borderColor: icon }]}
+                    placeholder="Enter your answer here..."
+                    placeholderTextColor={icon}
+                    value={answers[`question${index + 1}` as keyof typeof answers]}
+                    onChangeText={(value) => handleChange(`question${index + 1}`, value)}
+                    multiline
+                  />
+                )}
+              </ThemedView>
+            );
+          })}
+
+          <TouchableOpacity style={[styles.button, { backgroundColor: accent1, shadowColor: accent1 }]} onPress={handleSubmit}>
+            <ThemedText style={[styles.buttonText, { color: background }]}>Submit</ThemedText>
+          </TouchableOpacity>
+        </ScrollView>
+      </ThemedView>
   );
 }
 
@@ -158,7 +171,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
-    backgroundColor: "#f5f5f5",
   },
   title: {
     fontSize: 24,
@@ -168,6 +180,14 @@ const styles = StyleSheet.create({
   },
   questionContainer: {
     marginBottom: 20,
+    borderRadius: 16,
+    padding: 12,
+    gap: 8,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.04,
+    shadowRadius: 8,
+    elevation: 2,
   },
   question: {
     fontSize: 16,
@@ -176,41 +196,48 @@ const styles = StyleSheet.create({
   },
   dropdown: {
     borderWidth: 1,
-    borderColor: "#ddd",
     borderRadius: 8,
     padding: 14,
-    backgroundColor: "#fff",
   },
   dropdownText: {
     fontSize: 14,
-    color: "#111",
   },
   dropdownMenu: {
     marginTop: 8,
     borderWidth: 1,
-    borderColor: "#ddd",
-    borderRadius: 8,
-    backgroundColor: "#fff",
+    borderRadius: 12,
+    overflow: 'hidden',
   },
   dropdownItem: {
     padding: 14,
   },
   dropdownItemText: {
     fontSize: 14,
-    color: "#111",
   },
   textInput: {
     borderWidth: 1,
-    borderColor: "#ddd",
     borderRadius: 8,
     padding: 12,
     fontSize: 14,
-    backgroundColor: "#fff",
     minHeight: 50,
     textAlignVertical: "top",
   },
+  pageHeader: {
+    borderRadius: 16,
+    padding: 18,
+    marginBottom: 14,
+    justifyContent: 'center',
+  },
+  requestTitle: {
+    fontSize: 20,
+    fontWeight: '700',
+  },
+  requestSubtitle: {
+    marginTop: 6,
+    fontSize: 14,
+    opacity: 0.9,
+  },
   button: {
-    backgroundColor: "#007AFF",
     padding: 16,
     borderRadius: 8,
     alignItems: "center",
@@ -218,7 +245,6 @@ const styles = StyleSheet.create({
     marginBottom: 30,
   },
   buttonText: {
-    color: "#fff",
     fontSize: 16,
     fontWeight: "600",
   },
