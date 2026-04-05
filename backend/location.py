@@ -2,6 +2,7 @@ import requests
 import math
 from dotenv import load_dotenv
 import os
+import json
 from google.oauth2.service_account import Credentials
 from googleapiclient.discovery import build
 from flask import Flask, request, jsonify
@@ -115,11 +116,19 @@ def search():
             "name":     loc.place_name,
             "distance": round(loc.distance_m, 2),
             "phone":    loc.phone,
+            "hours":    loc.hours,   # ← add this
             "covered":  True,
         })
+    
+    for i, loc in enumerate(results, start=1):
+        print(f"{i}) {loc['name']}")
+        print(f"Distance: {loc['distance']} miles")
+        print(f"Phone: {loc['phone']}")
+        print(f"Hours: {loc['hours']}\n")
 
     print(f"\n[search] returning {len(results)} in-network locations")
     return jsonify({"results": results})
+
 
 
 if __name__ == "__main__":
