@@ -60,7 +60,7 @@ const handleSubmit = async () => {
 
   // Send data to backend
   try {
-    const response = await fetch("http://10.13.164.43:5000/api/search", {
+    const response = await fetch("http://insertIPV4addresshere:5000/api/search", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
